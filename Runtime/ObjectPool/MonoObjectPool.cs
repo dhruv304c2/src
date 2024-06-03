@@ -3,23 +3,25 @@ using System.Linq;
 using UnityEngine;
 
 namespace QuickWeb.ObjectPool {
-    public class MonoObjectPool<T> :MonoBehaviour, IObjectPool<T> 
+    public class MonoObjectPool<T> : MonoBehaviour, IObjectPool<T> 
     where T : MonoBehaviour, IPoolableObject<T> {
-        private List<T> _pool = new List<T>();
+        private List<T> _pool = new(); 
         private T _prefab;
-        public bool Initialised { get; private set; } = false;    
+        private Transform _poolTransform;    
+        public bool Initialised { get; private set; } = false;
 
         public void ReturnToPool(T obj) {
             obj.gameObject.SetActive(false);
-            obj.transform.SetParent(transform);
+            obj.transform.SetParent(_poolTransform);;
             obj.OnDespawn();
             _pool.Add(obj);
         }
 
         public void Initialise(int count, T prefab) {
+            _poolTransform = new GameObject(typeof(T).Name + "Pool").transform;
             _prefab = prefab;
             for (int i = 0; i < count; i++) {
-            InstantiateObjectToPool(_prefab); 
+                InstantiateObjectToPool(_prefab); 
             }
             Initialised = true;
         }
@@ -39,7 +41,7 @@ namespace QuickWeb.ObjectPool {
     private void InstantiateObjectToPool(T prefab) {
             T obj = Instantiate(prefab);
             obj.gameObject.SetActive(false);
-            obj.transform.SetParent(transform);
+            obj.transform.SetParent(_poolTransform);
             obj.Pool = this;
             _pool.Add(obj);
         } 
