@@ -11,7 +11,12 @@ namespace QuickWeb.Web.LazyList{
         public int LastPage {get; private set;} = 0;
         public Action<List<T>> OnDataChanged { get; set; }
         public Action<List<T>> OnDataAdded { get; set; }
-
+        
+        [SerializeField] private LazyListPresenter _lazyListPresenter;        
+        
+        void Awake() {
+            OnDataAdded += _lazyListPresenter.LoadPage;
+        }
 
         public void AddElement(T element){
             Elements.Add(element);
@@ -60,11 +65,6 @@ namespace QuickWeb.Web.LazyList{
             }
             LastPage++;
             OnDataAdded?.Invoke(elements);
-        }
-
-        [SerializeField] private LazyListPresenter _lazyListPresenter;        
-        void Awake() {
-            OnDataAdded += _lazyListPresenter.LoadPage;
-        }
+        } 
     }
 }
